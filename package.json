@@ -1,0 +1,14 @@
+{
+  "name": "deckhand",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A deckhand who knows every inch of this Mac. Read-only collectors snapshot the machine; anything can consume the snapshot.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "scan": "node deckhand.mjs scan",
+    "show": "node deckhand.mjs show"
+  }
+}

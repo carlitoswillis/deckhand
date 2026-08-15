@@ -1,0 +1,205 @@
+{
+  "schema": 1,
+  "capturedAt": "2026-08-14T18:20:00.000Z",
+  "host": { "hostname": "demo-studio.local", "platform": "darwin", "release": "23.3.0" },
+  "durationMs": 8140,
+  "_comment": "Synthetic snapshot with invented values. Used for the README screenshot and as a fixture, so neither ships anyone's real machine inventory. Shape mirrors a real scan exactly.",
+  "collectors": {
+    "hardware": { "ok": true, "ms": 41, "error": null },
+    "memory": { "ok": true, "ms": 78, "error": null },
+    "processes": { "ok": true, "ms": 232, "error": null },
+    "network": { "ok": true, "ms": 118, "error": null },
+    "installed": { "ok": true, "ms": 1294, "error": null },
+    "autostart": { "ok": true, "ms": 186, "error": null },
+    "disk": { "ok": true, "ms": 8102, "error": null }
+  },
+  "hardware": {
+    "ok": true,
+    "cached": true,
+    "machine": {
+      "name": "Mac Studio",
+      "model": "Mac13,1",
+      "chip": "Apple M1 Max",
+      "cores": 10,
+      "performanceCores": 8,
+      "efficiencyCores": 2,
+      "memory": "32 GB",
+      "osBuild": "14.3 (23D56)"
+    },
+    "gpu": { "model": "Apple M1 Max", "cores": 24, "unifiedMemory": true }
+  },
+  "memory": {
+    "totalBytes": 34359738368,
+    "totalGiB": 32,
+    "unified": true,
+    "pressure": { "ok": true, "freePercent": 58, "state": "normal" },
+    "vmstat": {
+      "ok": true,
+      "pageSize": 16384,
+      "activeBytes": 11274289152,
+      "inactiveBytes": 7516192768,
+      "wiredBytes": 3221225472,
+      "compressedBytes": 4294967296,
+      "freeBytes": 1073741824,
+      "speculativeBytes": 268435456,
+      "availableBytes": 8858370048,
+      "swapoutsSinceBoot": 0
+    },
+    "swap": { "ok": true, "usedBytes": 0, "totalBytes": 0, "encrypted": true },
+    "topProcesses": {
+      "ok": true,
+      "processes": [
+        { "rssBytes": 1288490188, "pid": 481, "cpuPercent": 3.1, "command": "/Applications/Safari.app/Contents/MacOS/Safari" },
+        { "rssBytes": 912680550, "pid": 522, "cpuPercent": 1.4, "command": "node" },
+        { "rssBytes": 704643072, "pid": 377, "cpuPercent": 0.8, "command": "WindowServer" }
+      ]
+    },
+    "ollama": {
+      "ok": true,
+      "reachable": true,
+      "residentBytes": 11274289152,
+      "pinnedBytes": 11274289152,
+      "keepAlive": "-1",
+      "keepAlivePolicy": "permanent",
+      "loadedModels": [
+        { "name": "qwen2.5-coder:14b", "vramBytes": 11274289152, "contextLength": 16384, "quantization": "Q4_K_M", "pinned": true }
+      ],
+      "env": { "OLLAMA_KEEP_ALIVE": "-1", "OLLAMA_CONTEXT_LENGTH": "16384" }
+    },
+    "headroom": {
+      "availableBytes": 8858370048,
+      "availableGiB": 8.25,
+      "freePercent": 58,
+      "pressureState": "normal",
+      "pinnedByOllamaBytes": 11274289152,
+      "pinnedByOllamaGiB": 10.5,
+      "availableIfUnpinnedBytes": 20132659200,
+      "availableIfUnpinnedGiB": 18.75,
+      "unpinCandidate": {
+        "why": "OLLAMA_KEEP_ALIVE=-1 pins the loaded model in unified memory on purpose.",
+        "command": "launchctl unload ~/Library/LaunchAgents/com.local.ollama.plist"
+      }
+    }
+  },
+  "processes": {
+    "load": { "ok": true, "one": 2.31, "five": 1.98, "fifteen": 1.74, "cores": 10, "perCore": 0.23, "trend": "steady" },
+    "processes": {
+      "ok": true,
+      "total": 612,
+      "cpuPercentIsLifetimeAverage": true,
+      "topByCpu": [
+        { "pid": 377, "cpuPercent": 21.4, "rssBytes": 704643072, "elapsed": "18:22:04", "command": "WindowServer" },
+        { "pid": 481, "cpuPercent": 12.9, "rssBytes": 1288490188, "elapsed": "06:11:32", "command": "Safari" },
+        { "pid": 522, "cpuPercent": 6.2, "rssBytes": 912680550, "elapsed": "02:40:11", "command": "node" }
+      ]
+    },
+    "pm2": {
+      "ok": true,
+      "installed": true,
+      "count": 2,
+      "processes": [
+        { "name": "api", "pmId": 0, "pid": 1204, "status": "online", "memoryBytes": 184549376, "restarts": 0, "execPath": "/Users/you/code/api/server.js" },
+        { "name": "worker", "pmId": 1, "pid": 1207, "status": "online", "memoryBytes": 96468992, "restarts": 2, "execPath": "/Users/you/code/worker/index.js" }
+      ]
+    },
+    "launchd": { "ok": true, "total": 478, "running": 261, "failingCount": 3, "failing": [], "thirdParty": [] }
+  },
+  "network": {
+    "listeners": [
+      { "port": 22, "known": "ssh", "seenBy": "netstat", "scope": "all-interfaces", "processes": [], "unidentified": true },
+      { "port": 3000, "known": "my-web-app", "seenBy": "both", "scope": "loopback", "processes": [{ "pid": 1204, "command": "node", "user": "you" }] },
+      { "port": 5432, "known": "postgres", "seenBy": "lsof", "scope": "loopback", "processes": [{ "pid": 902, "command": "postgres", "user": "you" }] },
+      { "port": 7789, "known": "deckhand", "seenBy": "both", "scope": "all-interfaces", "processes": [{ "pid": 1533, "command": "node", "user": "you" }] },
+      { "port": 11434, "known": "ollama", "seenBy": "both", "scope": "loopback", "processes": [{ "pid": 640, "command": "ollama", "user": "you" }] }
+    ],
+    "summary": {
+      "total": 5,
+      "identified": 4,
+      "unidentified": [22],
+      "knownButNotListening": [{ "port": 6379, "name": "redis" }],
+      "byScope": { "loopback": 3, "tailscale": 0, "allInterfaces": 2, "specific": 0 }
+    },
+    "tailscale": {
+      "ok": true,
+      "installed": true,
+      "backendState": "Running",
+      "connected": true,
+      "self": { "hostName": "demo-studio", "tailscaleIPs": ["100.64.0.1"], "online": true },
+      "peers": [{ "hostName": "phone", "os": "iOS", "online": true, "tailscaleIPs": ["100.64.0.2"] }],
+      "health": []
+    }
+  },
+  "installed": {
+    "apps": { "ok": true, "count": 96, "withLastUsedDate": 51, "roots": [], "items": [] },
+    "staleApps": [
+      { "name": "OldEditor.app", "lastUsedAt": "2024-11-02T10:14:00.000Z", "lastUsedSource": "kMDItemLastUsedDate", "daysSinceUsed": 650, "confident": true },
+      { "name": "LegacyTool.app", "lastUsedAt": "2025-01-19T22:03:00.000Z", "lastUsedSource": "kMDItemLastUsedDate", "daysSinceUsed": 572, "confident": true },
+      { "name": "SomeUtility.app", "lastUsedAt": "2024-08-30T08:00:00.000Z", "lastUsedSource": "kMDItemContentModificationDate", "daysSinceUsed": 714, "confident": false }
+    ],
+    "homebrew": {
+      "ok": true,
+      "autoUpdateSuppressed": true,
+      "formulae": { "count": 118 },
+      "casks": { "count": 9 },
+      "outdated": { "count": 23, "formulae": [] }
+    },
+    "npmGlobal": { "ok": true, "count": 4, "installs": [], "items": [] },
+    "pipx": { "ok": true, "installed": false, "count": 0, "items": [] },
+    "ollamaModels": {
+      "ok": true,
+      "count": 3,
+      "totalBytes": 15300730125,
+      "models": [
+        { "name": "qwen2.5-coder:14b", "sizeBytes": 8988124298, "parameterSize": "14.8B", "quantization": "Q4_K_M" },
+        { "name": "qwen2.5:7b", "sizeBytes": 4683087332, "parameterSize": "7.6B", "quantization": "Q4_K_M" },
+        { "name": "gemma2:2b", "sizeBytes": 1629518495, "parameterSize": "2.6B", "quantization": "Q4_0" }
+      ]
+    }
+  },
+  "autostart": {
+    "plists": { "ok": true, "count": 41, "dirs": [], "items": [] },
+    "launchctl": { "ok": true, "total": 478, "running": 261 },
+    "orphaned": [{ "label": "com.example.oldhelper", "scope": "user-agent" }],
+    "failing": [{ "label": "com.example.tray", "exitStatus": 1, "reason": "exited 1", "likelyBroken": true }],
+    "unobservable": { "count": 18, "why": "launchctl list without sudo only reports the calling user's domain." },
+    "stalePlists": [{ "file": "com.example.helper.plist.bak-20260801", "reason": ".bak-20260801" }],
+    "loginItems": {
+      "ok": true,
+      "source": "backgrounditems.btm (legacy store, world-readable)",
+      "count": 3,
+      "items": [{ "name": "Docker" }, { "name": "Rectangle" }, { "name": "Tailscale" }]
+    },
+    "pm2": { "ok": true, "installed": true, "label": "pm2.you", "role": "pm2 resurrect hook" }
+  },
+  "disk": {
+    "headline": {
+      "volume": "/System/Volumes/Data",
+      "totalBytes": 494384795648,
+      "usedBytes": 361173035008,
+      "availableBytes": 133211760640,
+      "capacityPercent": 73,
+      "note": "df / reports the sealed system snapshot and is misleading; this is the volume that fills up."
+    },
+    "volumes": [],
+    "container": { "ok": true, "capacityCeilingBytes": 494384795648, "purgeableEstimateBytes": 0 },
+    "topDirs": [
+      { "label": "Downloads", "totalBytes": 40320851968, "ok": true, "children": [] },
+      { "label": "workspace", "totalBytes": 28856811520, "ok": true, "children": [] },
+      { "label": "Documents", "totalBytes": 26024654848, "ok": true, "children": [] },
+      { "label": ".ollama", "totalBytes": 15300730125, "ok": true, "children": [] },
+      { "label": "Music", "totalBytes": 6871947673, "ok": true, "children": [] },
+      { "label": "Pictures", "totalBytes": 5368709120, "ok": true, "children": [] }
+    ],
+    "heavyDirs": { "ok": true, "totalBytes": 6549278720, "dirs": [] },
+    "bigFiles": { "ok": true, "found": 41, "files": [], "missedBySpotlight": [] },
+    "cleanupCandidates": {
+      "staleFiles": [
+        { "path": "/Users/you/Downloads/installer.dmg", "bytes": 2147483648, "why": "installer image" },
+        { "path": "/Users/you/Desktop/archive-2024.zip", "bytes": 1610612736, "why": "archive" }
+      ],
+      "staleFilesBytes": 10171187200,
+      "regenerableBytes": 6549278720,
+      "policy": "read-only: deckhand never deletes. These are printed for review."
+    }
+  }
+}

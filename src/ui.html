@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>deckhand</title>
+<style>
+  :root {
+    --bg: #f6f6f4; --panel: #fdfdfc; --text: #23262a; --muted: #8a9098;
+    --border: #dcdcd7; --accent: #2e8b5f; --amber: #a87828;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101214; --panel: #16191c; --text: #d7dade; --muted: #71767d;
+      --border: #2a2e33; --accent: #4caf7d; --amber: #c9973f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 20px 60px; background: var(--bg); color: var(--text);
+    font-family: system-ui, sans-serif; font-size: 14px; line-height: 1.5;
+  }
+  .wrap { max-width: 940px; margin: 0 auto; }
+  h1 { font-size: 15px; font-weight: 600; margin: 0; letter-spacing: .02em; }
+  .sub { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 18px; }
+  .mono { font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace; }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+    padding: 13px 15px; margin-bottom: 10px;
+  }
+  .card h2 {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--muted); margin: 0 0 9px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+  .grid .card { margin: 0; }
+
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
+  .row span:first-child { flex: 0 0 auto; }
+  /* Values like the login-items list or a long port name have no spaces to
+     break on, so without this they push the card wider than the viewport. */
+  .row span:last-child {
+    font-family: ui-monospace, Menlo, monospace; font-size: 12.5px;
+    text-align: right; min-width: 0; overflow-wrap: anywhere;
+  }
+  .muted { color: var(--muted); }
+
+  .bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin: 8px 0 4px; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+  .bar i.warn { background: var(--amber); }
+
+  /* Composition bar: one row, segments proportional to bytes. Shows the SHAPE
+     of memory and disk use, which a list of numbers never quite conveys. */
+  .seg { display: flex; height: 8px; border-radius: 2px; overflow: hidden; margin: 4px 0 8px; background: var(--border); }
+  .seg i { display: block; height: 100%; }
+  .seg i + i { box-shadow: inset 1px 0 0 var(--panel); }
+  .legend { display: flex; flex-wrap: wrap; gap: 3px 12px; font-size: 11.5px; color: var(--muted); margin-bottom: 9px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend b { width: 7px; height: 7px; border-radius: 2px; display: inline-block; }
+  .legend em { font-style: normal; font-family: ui-monospace, Menlo, monospace; color: var(--text); }
+
+  /* Horizontal bars for ranked things — directory sizes, mostly. */
+  .hbar { display: grid; grid-template-columns: 88px 1fr 62px; gap: 8px; align-items: center; padding: 2px 0; font-size: 12.5px; }
+  .hbar u { text-decoration: none; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hbar div { height: 6px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .hbar div i { display: block; height: 100%; background: var(--accent); }
+  .hbar em { font-style: normal; text-align: right; font-family: ui-monospace, Menlo, monospace; color: var(--muted); }
+
+  form { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  input[type=text], select {
+    flex: 1; padding: 9px 11px; border: 1px solid var(--border); border-radius: 5px;
+    background: var(--panel); color: var(--text); font: inherit;
+  }
+  select { flex: 0 0 auto; }
+  button {
+    padding: 9px 14px; border: 1px solid var(--border); border-radius: 5px;
+    background: var(--panel); color: var(--text); font: inherit; cursor: pointer;
+  }
+  /* :hover on a touch device sticks after a tap, leaving the last-pressed
+     button looking permanently active — so only style hover where a mouse
+     actually exists. */
+  @media (hover: hover) {
+    button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  }
+  button:active:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  button:disabled { opacity: .5; cursor: default; }
+
+  #answer { white-space: pre-wrap; }
+  #answer pre {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+    padding: 9px 11px; overflow-x: auto; font-size: 12.5px;
+  }
+  .meta { color: var(--muted); font-size: 11.5px; margin-top: 9px; font-family: ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+  .flag { color: var(--amber); }
+  ul { margin: 4px 0 0; padding-left: 17px; }
+
+  /* ---- Phone ----------------------------------------------------------
+     Reached over Tailscale from a phone, which is the point of binding all
+     interfaces — so this is a real use, not a courtesy breakpoint. */
+  @media (max-width: 620px) {
+    body { padding: 16px 12px 40px; }
+
+    /* The age stamp drops under the machine line instead of being squeezed
+       against it by space-between. */
+    header { flex-direction: column; align-items: flex-start; gap: 2px; margin-bottom: 14px; }
+
+    .card { padding: 12px; }
+    .grid { grid-template-columns: 1fr; }
+
+    /* Question gets the full width; the controls share the row beneath it. */
+    #q { flex: 1 0 100%; }
+    #provider { flex: 1 1 auto; }
+    form button { flex: 1 1 auto; }
+
+    /* 16px is the threshold below which iOS Safari zooms the page on focus —
+       which then leaves the layout scrolled sideways after typing. */
+    input[type=text], select { font-size: 16px; }
+
+    /* Comfortable tap targets. */
+    button { padding: 11px 14px; min-height: 44px; }
+
+    /* Long directory names get less room, and the size column tightens up. */
+    .hbar { grid-template-columns: 68px 1fr 54px; gap: 6px; }
+
+    /* Wrap rather than stack: short pairs ("pressure / normal") stay on one
+       line, and only a genuinely long value drops to its own. Stacking every
+       row unconditionally would double the height of every card for nothing. */
+    .row { flex-wrap: wrap; gap: 0 12px; padding: 3px 0; }
+    .row span:last-child { text-align: left; }
+  }
+  li { padding: 1px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>deckhand</h1>
+      <div class="sub" id="machine">reading snapshot…</div>
+    </div>
+    <div class="sub mono" id="age"></div>
+  </header>
+
+  <div class="card">
+    <form id="askform">
+      <input type="text" id="q" placeholder="what's eating my disk?" autocomplete="off">
+      <select id="provider"><option value="">auto</option></select>
+      <button type="submit" id="go">ask</button>
+      <button type="button" id="factbtn">fact</button>
+    </form>
+    <div id="answer" class="muted">Ask about this Mac. Answers come only from the last snapshot.</div>
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <div class="grid" id="cards"></div>
+
+  <div class="card">
+    <div class="row">
+      <span class="muted" id="scanmeta"></span>
+      <button type="button" id="scanbtn">rescan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let snap = null;
+
+const gib = (b) => b == null ? '?' : (b / 1073741824).toFixed(2);
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+function ago(iso) {
+  const s = Math.round((Date.now() - new Date(iso)) / 1000);
+  if (s < 90) return s + 's ago';
+  if (s < 5400) return Math.round(s / 60) + 'm ago';
+  return Math.round(s / 3600) + 'h ago';
+}
+
+function card(title, rows, extra = '') {
+  return '<div class="card"><h2>' + title + '</h2>' + extra +
+    rows.map(([k, v]) => '<div class="row"><span class="muted">' + k + '</span><span>' + v + '</span></div>').join('') +
+    '</div>';
+}
+
+function bar(pct, warn) {
+  return '<div class="bar"><i class="' + (warn ? 'warn' : '') + '" style="width:' + Math.min(100, pct) + '%"></i></div>';
+}
+
+// parts: [label, bytes, colour][] — rendered as one proportional strip plus a
+// legend. Segments under 1.5% are still drawn so nothing silently vanishes,
+// but they get no legend entry.
+function seg(parts, total) {
+  if (!total) return '';
+  const bars = parts.map(([, b, c]) =>
+    '<i style="width:' + Math.max(0.4, (b / total) * 100).toFixed(2) + '%;background:' + c + '"></i>').join('');
+  const legend = parts
+    .filter(([, b]) => b / total >= 0.015)
+    .map(([l, b, c]) => '<span><b style="background:' + c + '"></b>' + l + ' <em>' + gib(b) + '</em></span>')
+    .join('');
+  return '<div class="seg">' + bars + '</div><div class="legend">' + legend + '</div>';
+}
+
+function hbars(rows, max) {
+  return rows.map(([label, bytes]) =>
+    '<div class="hbar"><u>' + esc(label) + '</u><div><i style="width:' +
+    ((bytes / max) * 100).toFixed(1) + '%"></i></div><em>' + gib(bytes) + '</em></div>').join('');
+}
+
+async function load() {
+  const r = await fetch('/api/snapshot');
+  if (!r.ok) { $('machine').textContent = 'no snapshot yet — press rescan'; return; }
+  snap = await r.json();
+  render();
+}
+
+function render() {
+  const mc = snap.hardware?.machine ?? {};
+  $('machine').textContent = [mc.name, mc.chip, mc.cores + ' cores', mc.memory, 'macOS ' + mc.osBuild]
+    .filter(Boolean).join(' · ');
+  $('age').textContent = 'snapshot ' + ago(snap.capturedAt);
+  $('scanmeta').textContent = 'scanned in ' + snap.durationMs + 'ms · ' +
+    Object.keys(snap.collectors ?? {}).length + ' collectors';
+
+  const out = [];
+
+  const m = snap.memory, h = m?.headroom;
+  if (h) {
+    const v = m.vmstat ?? {};
+    const css = getComputedStyle(document.documentElement);
+    const A = css.getPropertyValue('--accent').trim();
+    const M = css.getPropertyValue('--amber').trim();
+    const U = css.getPropertyValue('--muted').trim();
+    const B = css.getPropertyValue('--border').trim();
+
+    // The vm_stat categories, which are a genuine partition of the 32 GiB
+    // (they sum to 31.45 here — the rest is kernel overhead).
+    //
+    // Ollama is deliberately NOT carved out as its own segment, because its
+    // figure cannot be reconciled with these buckets. Measured 2026-08-14:
+    // ollama reported 16.19 GiB resident while active was 10.54 GiB and wired
+    // only 2.52 GiB — so it is not wholly inside either, and size_vram looks
+    // to be what ollama claims rather than what the kernel currently backs.
+    // Drawing it as a slice would double-count; asserting a bucket would be a
+    // guess. It gets its own line, attributed to ollama, and nothing more.
+    const parts = [
+      ['active', v.activeBytes ?? 0, A],
+      ['wired', v.wiredBytes ?? 0, M],
+      ['compressed', v.compressedBytes ?? 0, U],
+      ['inactive', v.inactiveBytes ?? 0, B],
+      ['free', (v.freeBytes ?? 0) + (v.speculativeBytes ?? 0), 'transparent'],
+    ];
+
+    // Labels stay short enough not to wrap: a two-line label with a right-aligned
+    // value reads as two unrelated rows. The nuance lives in the title tooltip.
+    const rows = [['pressure', h.pressureState]];
+    rows.push(['available', h.availableGiB + ' GiB']);
+
+    const resident = m.ollama?.residentBytes ?? 0;
+    if (resident > 0) {
+      const models = m.ollama.loadedModels ?? [];
+      rows.push([
+        models.length > 1 ? 'ollama (' + models.length + ' models)' : 'ollama',
+        gib(resident) + ' GiB',
+      ]);
+    }
+    if (h.pinnedByOllamaGiB > 0) rows.push(['free if unpinned', h.availableIfUnpinnedGiB + ' GiB']);
+    else if (m.ollama?.reachable && !resident) rows.push(['ollama', 'no model resident (' + (m.ollama.keepAlivePolicy ?? '?') + ')']);
+
+    out.push(card(
+      'memory · ' + h.availableGiB + ' of ' + m.totalGiB + ' GiB free',
+      rows,
+      seg(parts, m.totalBytes),
+    ));
+  }
+
+  const d = snap.disk?.headline;
+  if (d) {
+    const rows = [];
+    const c = snap.disk.cleanupCandidates;
+    if (c) {
+      rows.push(['regenerable', gib(c.regenerableBytes) + ' GiB']);
+      rows.push(['stale archives', gib(c.staleFilesBytes) + ' GiB in ' + c.staleFiles.length]);
+    }
+
+    // The walked directories, ranked. This is the actual answer to "what's
+    // eating my disk" — worth showing as shape rather than making the user
+    // read a column of numbers.
+    const dirs = (snap.disk.topDirs ?? []).filter((t) => t.totalBytes).slice(0, 6);
+    const max = dirs.length ? dirs[0].totalBytes : 1;
+    const extra = bar(d.capacityPercent, d.capacityPercent > 85) +
+      (dirs.length ? hbars(dirs.map((t) => [t.label, t.totalBytes]), max) : '') +
+      '<div class="legend" style="margin-top:7px"><span>walked dirs only — ~/Library is not scanned (199s)</span></div>';
+
+    out.push(card(
+      'disk · ' + gib(d.availableBytes) + ' GiB free of ' + gib(d.totalBytes) + ' · ' + d.capacityPercent + '% full',
+      rows,
+      extra,
+    ));
+  }
+
+  const p = snap.processes;
+  if (p?.load?.ok) {
+    const rows = [
+      ['load', p.load.one + ' / ' + p.load.five + ' / ' + p.load.fifteen],
+      ['per core', p.load.perCore + ' (' + p.load.trend + ')'],
+    ];
+    if (p.pm2?.installed) rows.push(['pm2', p.pm2.count + ' services']);
+    if (p.launchd?.ok) rows.push(['launchd', p.launchd.running + ' of ' + p.launchd.total]);
+    out.push(card('cpu', rows, bar(p.load.perCore * 100, p.load.perCore > 1)));
+  }
+
+  const n = snap.network;
+  if (n?.summary) {
+    const named = (n.listeners ?? []).filter((l) => l.known);
+    const rows = named.slice(0, 8).map((l) => [String(l.port), l.known]);
+    if (n.summary.knownButNotListening?.length) {
+      rows.push(['down', n.summary.knownButNotListening.map((k) => k.name).join(', ')]);
+    }
+    out.push(card('ports · ' + n.summary.total + ' listening', rows));
+  }
+
+  const i = snap.installed;
+  if (i) {
+    const sure = (i.staleApps ?? []).filter((a) => a.confident);
+    const rows = [
+      ['apps', i.apps.count],
+      ['brew', i.homebrew.formulae?.count + ' (' + i.homebrew.outdated?.count + ' outdated)'],
+      ['ollama models', i.ollamaModels.count],
+    ];
+    const extra = sure.length
+      ? '<div class="muted" style="font-size:12.5px;margin-bottom:7px">unopened &gt;1y: ' +
+        esc(sure.slice(0, 4).map((a) => a.name.replace(/\.app$/, '')).join(', ')) + '</div>'
+      : '';
+    out.push(card('installed', rows, extra));
+  }
+
+  const a = snap.autostart;
+  if (a?.plists) {
+    const rows = [
+      ['plists', a.plists.count],
+      ['orphaned', a.orphaned.length],
+      ['login items', (a.loginItems?.items ?? []).map((x) => x.name).join(', ') || 'none'],
+    ];
+    const broken = a.failing.filter((f) => f.likelyBroken);
+    if (broken.length) rows.push(['broken', broken.map((f) => f.label).join(', ')]);
+    out.push(card('autostart', rows));
+  }
+
+  $('cards').innerHTML = out.join('');
+}
+
+async function askServer(payload) {
+  $('go').disabled = $('factbtn').disabled = true;
+  $('answer').className = 'muted';
+  $('answer').textContent = 'thinking…';
+  $('meta').textContent = '';
+
+  try {
+    const r = await fetch('/api/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const j = await r.json();
+
+    if (!j.ok) {
+      $('answer').className = 'flag';
+      $('answer').textContent = j.error ?? 'no provider could answer';
+      return;
+    }
+
+    $('answer').className = '';
+    // Fenced blocks come back as commands to run — render them as such, but
+    // never offer to run them. Read-only is the whole posture.
+    $('answer').innerHTML = esc(j.text).replace(/```(?:sh|bash)?\\n([\\s\\S]*?)```/g, (_, code) => '<pre>' + code.trim() + '</pre>');
+
+    let meta = j.provider + '/' + j.model + ' · ' + (j.ms / 1000).toFixed(1) + 's · ' +
+      j.approxTokens + ' tok [' + (j.sections.join(', ') || 'core') + ']';
+    if (j.costUsd) meta += ' · $' + j.costUsd.toFixed(4);
+    $('meta').innerHTML = esc(meta);
+
+    const bad = [...(j.check?.unsupported ?? []), ...(j.check?.badComparisons ?? [])];
+    if (bad.length) {
+      $('meta').innerHTML += '<br><span class="flag">⚠ not supported by the facts: ' + esc(bad.join(', ')) + '</span>';
+    }
+  } catch (err) {
+    $('answer').className = 'flag';
+    $('answer').textContent = String(err);
+  } finally {
+    $('go').disabled = $('factbtn').disabled = false;
+  }
+}
+
+$('askform').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const q = $('q').value.trim();
+  if (q) askServer({ question: q, provider: $('provider').value });
+});
+
+$('factbtn').addEventListener('click', () => askServer({ fact: true, provider: $('provider').value }));
+
+$('scanbtn').addEventListener('click', async () => {
+  $('scanbtn').disabled = true;
+  $('scanbtn').textContent = 'scanning…';
+  try {
+    await fetch('/api/scan', { method: 'POST' });
+    await load();
+  } finally {
+    $('scanbtn').disabled = false;
+    $('scanbtn').textContent = 'rescan';
+  }
+});
+
+fetch('/api/providers').then((r) => r.json()).then((ps) => {
+  for (const [name, s] of Object.entries(ps)) {
+    if (!s.ok) continue;
+    const o = document.createElement('option');
+    o.value = name;
+    o.textContent = name + (s.billed ? ' ($)' : '');
+    $('provider').appendChild(o);
+  }
+});
+
+load();
+setInterval(() => { if (snap) $('age').textContent = 'snapshot ' + ago(snap.capturedAt); }, 10000);
+</script>
+</body>
+</html>

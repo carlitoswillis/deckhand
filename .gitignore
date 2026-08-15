@@ -1,0 +1,18 @@
+# Snapshots describe this specific Mac in detail — serial number, platform
+# UUID, every big file's full path, what's listening on which port. None of
+# that belongs in a repo, and the whole point is that it's regenerable: run
+# `node deckhand.mjs scan` and you have it back in 8 seconds.
+data/
+
+node_modules/
+.DS_Store
+
+# House convention: per-machine notes that aren't part of the project.
+RUNNING.local.md
+.env
+
+# Personal service map, machine-specific paths. Never commit this.
+deckhand.config.json
+
+# Internal planning doc — names other projects and personal context.
+PLAN.md

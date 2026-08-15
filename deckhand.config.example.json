@@ -1,0 +1,11 @@
+{
+  "_comment": "Copy to deckhand.config.json (gitignored) and edit. Everything here is optional.",
+
+  "ports": {
+    "3000": "my-web-app",
+    "5173": "vite dev server",
+    "7777": "some-dashboard"
+  },
+
+  "_ports_note": "Your own services, so deckhand can name a port instead of reporting an unidentified listener. Ports it does not recognise stay unlabelled on purpose — a wrong name gets repeated as fact by the LLM."
+}
